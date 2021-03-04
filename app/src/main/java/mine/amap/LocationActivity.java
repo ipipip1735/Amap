@@ -1,17 +1,21 @@
 package mine.amap;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.hardware.SensorManager;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
@@ -31,7 +35,9 @@ import com.amap.api.maps2d.model.LatLng;
 import com.amap.api.maps2d.model.MyLocationStyle;
 
 import java.sql.SQLOutput;
+import java.util.Arrays;
 
+import static android.Manifest.permission.INTERNET;
 import static com.amap.api.maps2d.AMapOptions.LOGO_POSITION_BOTTOM_LEFT;
 import static com.amap.api.maps2d.AMapOptions.ZOOM_POSITION_RIGHT_CENTER;
 
@@ -92,8 +98,33 @@ public class LocationActivity extends AppCompatActivity {
             System.out.println("getMaxZoomLevel is " + aMap.getMaxZoomLevel());
             System.out.println("getMinZoomLevel() is " + aMap.getMinZoomLevel());
         }
+    }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    void request() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                    checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+            }
+        }
+    }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        System.out.println("requestCode = " + requestCode + ", permissions = " + Arrays.deepToString(permissions) + ", grantResults = " + Arrays.toString(grantResults));
+
+        for (int i = 0; i < permissions.length; i++) {
+            System.out.println(permissions[i]);
+
+        }
+        for (int i = 0; i < grantResults.length; i++) {
+            System.out.println(grantResults[i]);
+
+        }
     }
 
     @Override
@@ -129,7 +160,6 @@ public class LocationActivity extends AppCompatActivity {
 //
 //            }
 //        });
-
 
 
         mMapView.onResume();
@@ -415,5 +445,10 @@ public class LocationActivity extends AppCompatActivity {
 
         camera();
 
+    }
+
+    public void request(View view) {
+        System.out.println("~~button.request~~");
+        request();
     }
 }
